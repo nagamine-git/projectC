@@ -20,10 +20,15 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
+    height: 384,
+    resizable: false,
     useContentSize: true,
-    width: 1000
+    width: 240,
+    x: 999999999,
+    y: 999999999
   })
+  // 一番手前に常に表示
+  mainWindow.setAlwaysOnTop(true)
 
   mainWindow.loadURL(winURL)
 

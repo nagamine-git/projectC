@@ -1,6 +1,9 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import electron from 'electron'
+
+const app = electron.app
+const BrowserWindow = electron.BrowserWindow
 
 /**
  * Set `__static` path to static files in production
@@ -15,22 +18,34 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
+let clickable = false
+
 function createWindow () {
   /**
    * Initial window options
    */
+
+  // ウィンドウの最大サイズを計測
+  const Screen = electron.screen
+  const size = Screen.getPrimaryDisplay().size
+
   mainWindow = new BrowserWindow({
-    titleBarStyle: 'hidden',
-    height: 384,
+    center: true,
+    frame: false,
+    height: 64,
     resizable: false,
     transparent: true,
     useContentSize: true,
-    width: 240,
-    x: 999999999,
-    y: 999999999
+    width: size.width,
+    x: 0,
+    y: 0
   })
   // 一番手前に常に表示
   mainWindow.setAlwaysOnTop(true)
+  // 移動できないように
+  mainWindow.setMovable(false)
+  // 透明な箇所がクリック可能に
+  mainWindow.setIgnoreMouseEvents(!clickable)
 
   mainWindow.loadURL(winURL)
 

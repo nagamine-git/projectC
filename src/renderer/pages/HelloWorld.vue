@@ -1,6 +1,6 @@
 <template>
   <div id='main'>
-    <button>Googleでサインイン</button>
+    <div id='progress' />
   </div>
 </template>
 
@@ -30,23 +30,26 @@
     font-family: 'Source Sans Pro', sans-serif;
     height: 100%;
     margin: 0;
-    opacity:0.5;
     width: 100%;
   }
   
   #main {
-    background-color: black;
-    color: white;
-    height: 100vh;
+    background-color: #616161;
+    height: 4px;
     text-align: center;
     width: 100vw;
-    padding: 20px 5px 0;
     position:fixed;
-  }
-  
-  #main button {
-    margin-top: 15px;
-    padding: 10px;
+    z-index: 99;
+    opacity:0.5;
   }
 
+  #progress {
+    background-color: #0288D1;
+    height: 4px;
+    text-align: center;
+    width: 50vw;
+    position:fixed;
+    z-index: 100;
+  }
+  
 </style>

@@ -4,6 +4,8 @@ import electron from 'electron'
 
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
+const Tray = electron.Tray
+const Menu = electron.Menu
 
 /**
  * Set `__static` path to static files in production
@@ -20,6 +22,18 @@ const winURL = process.env.NODE_ENV === 'development'
 
 let clickable = false
 
+//アイコン表示
+let tray = null
+app.on('ready', () => {
+  tray = new Tray(require('path').join(__dirname, '../renderer/assets/tray.png'))
+  const contextMenu = Menu.buildFromTemplate([
+    {label: 'Start'},
+    {label: 'End'}
+  ])
+  tray.setToolTip('これは自分のアプリケーションです。')
+  tray.setContextMenu(contextMenu)
+})
+
 function createWindow () {
   /**
    * Initial window options
@@ -32,7 +46,7 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     center: true,
     frame: false,
-    height: 64,
+    height: 24,
     resizable: false,
     transparent: true,
     useContentSize: true,

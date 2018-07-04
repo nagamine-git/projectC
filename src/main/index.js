@@ -22,13 +22,26 @@ const winURL = process.env.NODE_ENV === 'development'
 
 let clickable = false
 
-//アイコン表示
+// アイコン表示
 let tray = null
 app.on('ready', () => {
   tray = new Tray(require('path').join(__dirname, '../renderer/assets/tray.png'))
   const contextMenu = Menu.buildFromTemplate([
-    {label: 'Start'},
-    {label: 'End'}
+    { label: 'Start',
+      click () {
+        mainWindow.webContents.send('start')
+      }
+    },
+    { label: 'End',
+      click () {
+        mainWindow.webContents.send('end')
+      }
+    },
+    { label: 'Quit',
+      click () {
+        app.quit()
+      }
+    }
   ])
   tray.setToolTip('これは自分のアプリケーションです。')
   tray.setContextMenu(contextMenu)

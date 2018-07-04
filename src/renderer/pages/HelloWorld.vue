@@ -41,6 +41,14 @@
             this.$Progress.fail()
           })
       }
+    },
+    mounted () {
+      this.$electron.ipcRenderer.on('start', e => {
+        this.$Progress.start()
+      })
+      this.$electron.ipcRenderer.on('end', e => {
+        this.$Progress.set(100)
+      })
     }
   }
 </script>

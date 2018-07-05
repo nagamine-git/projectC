@@ -3,12 +3,21 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
+const REDIRECT_URI = 'http://localhost:8888/'
+
 export default new Router({
   routes: [
     {
       path: '/',
-      name: 'HelloWorld',
-      component: require('@/pages/HelloWorld').default
+      name: 'login',
+      component: require('@/pages/Login').default,
+      meta: { redirectUri: REDIRECT_URI }
+    },
+    {
+      path: '/calendar',
+      name: 'calendar',
+      component: require('@/pages/Calendar').default,
+      meta: { redirectUri: REDIRECT_URI }
     },
     {
       path: '*',

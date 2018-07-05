@@ -20,9 +20,7 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
-let clickable = false
-
-// アイコン表示
+// Trayアイコン表示
 let tray = null
 app.on('ready', () => {
   tray = new Tray(require('path').join(__dirname, '../renderer/assets/tray.png'))
@@ -47,32 +45,34 @@ app.on('ready', () => {
   tray.setContextMenu(contextMenu)
 })
 
+// let clickable = false
+
 function createWindow () {
   /**
    * Initial window options
    */
 
   // ウィンドウの最大サイズを計測
-  const Screen = electron.screen
-  const size = Screen.getPrimaryDisplay().size
+  // const Screen = electron.screen
+  // const size = Screen.getPrimaryDisplay().size
 
   mainWindow = new BrowserWindow({
     center: true,
-    frame: false,
-    height: 24,
-    resizable: false,
-    transparent: true,
-    useContentSize: true,
-    width: size.width,
+    // frame: false,
+    // height: size.height,
+    // resizable: false,
+    // transparent: true,
+    // useContentSize: true,
+    // width: size.width,
     x: 0,
     y: 0
   })
   // 一番手前に常に表示
-  mainWindow.setAlwaysOnTop(true)
+  // mainWindow.setAlwaysOnTop(true)
   // 移動できないように
-  mainWindow.setMovable(false)
+  // mainWindow.setMovable(false)
   // 透明な箇所がクリック可能に
-  mainWindow.setIgnoreMouseEvents(!clickable)
+  // mainWindow.setIgnoreMouseEvents(!clickable)
 
   mainWindow.loadURL(winURL)
 

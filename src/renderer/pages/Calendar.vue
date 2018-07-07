@@ -1,12 +1,11 @@
 <template>
 <div>
-  <div>テスト</div>
-  <div v-if="null === files">ロード中</div>
-    <ul v-else>
-      <li v-for="f of files" :key="'file-' + f.id">
-        {{f.name}}
-      </li>
-    </ul>
+  <div v-if="null === events">ロード中</div>
+  <ul v-else>
+    <li v-for="e of events">
+      {{e.summary}}
+    </li>
+  </ul>
 </div>
 </template>
 
@@ -18,7 +17,7 @@ const clientSecret = require('@/../client_secret.json').installed
 
 export default {
   data () {
-    return { files: null }
+    return { events: null }
   },
   mounted () {
     const auth = new OAuth2(clientSecret.client_id,
@@ -27,11 +26,18 @@ export default {
     auth.getToken(this.$route.query.code).then(res => {
       auth.credentials = res.tokens
 
-      const drive = google.drive({version: 'v3', auth})
-      return drive.files.list({
-        q: "'root' in parents and trashed = false"})
+      const calendar = google.calendar({version: 'v3', auth})
+      return calendar.events.list({
+        'calendarId': 'primary',
+        'timeMin': (new Date()).toISOString(),
+        'showDeleted': false,
+        'singleEvents': true,
+        'maxResults': 10,
+        'orderBy': 'startTime'
+      })
     }).then(res => {
-      this.files = res.data.files
+      console.log(res)
+      this.events = res.data.items
     }).catch(err => {
       console.log(err)
       alert('エラー！: ' + err)

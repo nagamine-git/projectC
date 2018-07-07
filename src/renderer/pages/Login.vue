@@ -1,5 +1,5 @@
 <template>
-  <webview ref="webview" :src="url" @will-navigate="onWillNavigate">
+  <webview ref="webview" :src="url" @will-navigate="onWillNavigate" />
 </webview>
 
 </template>
@@ -33,7 +33,7 @@ export default {
       clientSecret.client_secret,
       // clientSecret.redirect_uris[0])
       this.$route.meta.redirectUri)
-    this.url = auth.generateAuthUrl({scope: 'https://www.googleapis.com/auth/drive'})
+    this.url = auth.generateAuthUrl({scope: 'https://www.googleapis.com/auth/calendar'})
   },
   methods: {
     onWillNavigate (ev) {

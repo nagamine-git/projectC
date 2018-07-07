@@ -14,7 +14,7 @@
 const { google } = require('googleapis')
 const OAuth2 = google.auth.OAuth2
 
-const clientSecret = require('@/../client_secret.json').web
+const clientSecret = require('@/../client_secret.json').installed
 
 export default {
   data () {

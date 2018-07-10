@@ -1,12 +1,15 @@
 <template>
-<div>
-  <div v-if="null === events">ロード中</div>
-  <ul v-else>
-    <li v-for="e of events">
-      {{e.summary}}
-    </li>
-  </ul>
-</div>
+  <div>
+    <vue-progress-bar></vue-progress-bar>
+      <div class="container">
+        <div class="info" v-if="event.summary === null">
+          <span>ロード中・・・</span>
+        </div>
+        <div class="info" v-else>
+          <span>{{event.summary}}</span>[<span>{{event.end.dateTime}}</span>-><span>{{event.start.dateTime}}</span>]
+        </div>
+      </div>
+  </div>
 </template>
 
 <script>
@@ -18,9 +21,26 @@ const storage = require('electron-json-storage')
 
 export default {
   data () {
-    return { events: null }
+    return {
+      event: {
+        summary: null,
+        end: {
+          dateTime: null
+        },
+        start: {
+          dateTime: null
+        }
+      }
+    }
   },
   mounted () {
+    this.$electron.ipcRenderer.on('start', e => {
+      this.$Progress.start()
+    })
+    this.$electron.ipcRenderer.on('end', e => {
+      this.$Progress.set(100)
+    })
+
     const auth = new OAuth2(clientSecret.client_id,
       clientSecret.client_secret,
       this.$route.meta.redirectUri)
@@ -38,7 +58,7 @@ export default {
       })
     }).then(res => {
       console.log(res)
-      this.events = res.data.items
+      this.event = res.data.items[0]
     }).catch(err => {
       console.log(err)
       alert('エラー！: ' + err)
@@ -63,3 +83,47 @@ export default {
   }
 }
 </script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    height: 100%;
+    width: 100% ;
+  }
+
+  body { 
+    font-family: 'Source Sans Pro', sans-serif;
+    height: 100%;
+    margin: 0;
+    width: 100%;
+  }
+
+  .container {
+    border-style: none;
+    text-align: center;
+  }
+
+  .info {
+    border-style: none;
+    background-color: #222222;
+    border-radius: 0px 0px 6px 6px;
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+    display: inline-block;
+    opacity: 0.89;
+    padding: 1px 12px 3px;
+    border-style: none;
+    color: #fff;
+  }
+
+  .info span {
+    font-size: 11.5px;
+  }
+
+</style>

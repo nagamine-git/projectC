@@ -14,6 +14,7 @@ const { google } = require('googleapis')
 const OAuth2 = google.auth.OAuth2
 
 const clientSecret = require('@/../client_secret.json').installed
+const storage = require('electron-json-storage')
 
 export default {
   data () {
@@ -41,6 +42,23 @@ export default {
     }).catch(err => {
       console.log(err)
       alert('エラー！: ' + err)
+    })
+
+    storage.get('config', function (error, data) {
+      if (error) throw error
+
+      if (Object.keys(data).length === 0) {
+        console.log('データがないときの処理')
+        let json = {
+          user: 'hoge'
+        }
+        storage.set('config', json, function (error) {
+          if (error) throw error
+        })
+      } else {
+        console.log('データがあるときの処理')
+        console.log(data)
+      }
     })
   }
 }

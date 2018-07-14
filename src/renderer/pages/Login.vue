@@ -1,7 +1,5 @@
 <template>
   <webview ref="webview" :src="url" @will-navigate="onWillNavigate" />
-</webview>
-
 </template>
 
 <style scoped>

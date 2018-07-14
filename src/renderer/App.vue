@@ -10,6 +10,4 @@
   }
 </script>
 
-<style>
-  /* CSS */
-</style>
+<style src="./style.css"></style>

@@ -2,16 +2,7 @@
   <webview ref="webview" :src="url" @will-navigate="onWillNavigate" />
 </template>
 
-<style scoped>
-webview {
-  display: inline-flex;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-</style>
+<style scoped src="./style.css"></style>
 
 <script>
 const { google } = require('googleapis')
@@ -39,7 +30,6 @@ export default {
     }
     const auth = new OAuth2(clientSecret.client_id,
       clientSecret.client_secret,
-      // clientSecret.redirect_uris[0])
       this.$route.meta.redirectUri)
     this.url = auth.generateAuthUrl({scope: 'https://www.googleapis.com/auth/calendar'})
   },
@@ -47,7 +37,6 @@ export default {
     onWillNavigate (ev) {
       const url = '' + ev.url
       if (url.startsWith(this.$route.meta.redirectUri)) {
-        // 念の為止める。 stop() は効かない模様
         this.$refs.webview.loadURL('about:blank')
         const parser = new URL(url)
         const code = parser.searchParams.get('code')

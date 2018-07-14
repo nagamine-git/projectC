@@ -10,13 +10,13 @@ export default new Router({
     {
       path: '/',
       name: 'login',
-      component: require('@/pages/Login').default,
+      component: require('@/pages/Login/Login').default,
       meta: { redirectUri: REDIRECT_URI }
     },
     {
       path: '/calendar',
       name: 'calendar',
-      component: require('@/pages/Calendar').default,
+      component: require('@/pages/Calendar/Calendar').default,
       meta: { redirectUri: REDIRECT_URI }
     },
     {

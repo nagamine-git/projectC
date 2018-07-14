@@ -36,32 +36,6 @@ export default {
     }
   },
   mounted () {
-    let self = this
-    function getNowTime () {
-      self.nowTime = new Date().getTime()
-    }
-    setInterval(getNowTime, 1000)
-    const auth = new OAuth2(clientSecret.client_id,
-      clientSecret.client_secret,
-      this.$route.meta.redirectUri)
-
-    const saveTokens = (tokens) => {
-      storage.get('config', function (error, data) {
-        if (error) throw error
-
-        let json = {
-          tokens: {
-            access_token: tokens.access_token,
-            refresh_token: tokens.refresh_token
-          }
-        }
-
-        storage.set('config', json, function (error) {
-          if (error) throw error
-        })
-      })
-    }
-
     const calendarEventsListParams = {
       'calendarId': 'primary',
       'timeMin': (new Date()).toISOString(),
@@ -70,6 +44,31 @@ export default {
       'maxResults': 10,
       'orderBy': 'startTime'
     }
+
+    const auth = new OAuth2(clientSecret.client_id,
+      clientSecret.client_secret,
+      this.$route.meta.redirectUri)
+
+    const saveTokens = (tokens) => {
+      storage.get('config', function (error, data) {
+        if (error) throw error
+        let json = {
+          tokens: {
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token
+          }
+        }
+        storage.set('config', json, function (error) {
+          if (error) throw error
+        })
+      })
+    }
+
+    let self = this
+    function getNowTime () {
+      self.nowTime = new Date().getTime()
+    }
+    setInterval(getNowTime, 1000)
 
     if (this.$route.query.tokens) {
       auth.credentials = this.$route.query.tokens
@@ -114,46 +113,4 @@ export default {
 }
 </script>
 
-<style>
-  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  html {
-    height: 100%;
-    width: 100% ;
-  }
-
-  body { 
-    font-family: 'Source Sans Pro', sans-serif;
-    height: 100%;
-    margin: 0;
-    width: 100%;
-  }
-
-  .container {
-    border-style: none;
-    text-align: center;
-  }
-
-  .info {
-    border-style: none;
-    background-color: #222222;
-    border-radius: 0px 0px 6px 6px;
-    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-    display: inline-block;
-    opacity: 0.89;
-    padding: 1px 12px 3px;
-    border-style: none;
-    color: #fff;
-  }
-
-  .info span {
-    font-size: 11.5px;
-  }
-
-</style>
+<style scoped src="./style.css"></style>

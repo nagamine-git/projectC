@@ -6,7 +6,7 @@
           <span>ロード中・・・</span>
         </div>
         <div class="info" v-else>
-          <span>{{event.summary}} [{{nowPercent}}%]</span>
+          <span>{{event.summary}} [{{remainingTime}}]</span>
         </div>
       </div>
   </div>
@@ -32,7 +32,8 @@ export default {
         }
       },
       nowTime: null,
-      nowPercent: null
+      nowPercent: null,
+      remainingTime: null
     }
   },
   mounted () {
@@ -106,6 +107,10 @@ export default {
     nowTime: function () {
       let endTime = new Date(this.event.end.dateTime).getTime()
       let startTime = new Date(this.event.start.dateTime).getTime()
+      let remainingTimeHour = String(Math.floor(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) / 60))
+      let remainingTimeMin = String(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) % 60)
+      let remainingTimeSec = String(Math.floor((endTime - this.nowTime) / 1000) % 60)
+      this.remainingTime = remainingTimeHour + ':' + remainingTimeMin + ':' + remainingTimeSec
       this.nowPercent = Math.round(((this.nowTime - startTime) / (endTime - startTime)) * 100)
       this.$Progress.set(this.nowPercent)
     }

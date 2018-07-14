@@ -34,51 +34,64 @@ export default {
     }
   },
   mounted () {
+    const auth = new OAuth2(clientSecret.client_id,
+      clientSecret.client_secret,
+      this.$route.meta.redirectUri)
+
+    const saveTokens = (tokens) => {
+      storage.get('config', function (error, data) {
+        if (error) throw error
+
+        let json = {
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token
+        }
+
+        storage.set('config', json, function (error) {
+          if (error) throw error
+        })
+      })
+    }
+
+    const calendarEventsListParams = {
+      'calendarId': 'primary',
+      'timeMin': (new Date()).toISOString(),
+      'showDeleted': false,
+      'singleEvents': true,
+      'maxResults': 10,
+      'orderBy': 'startTime'
+    }
+
+    if (this.$route.query.tokens) {
+      auth.credentials = this.$route.query.tokens
+      const calendar = google.calendar({version: 'v3', auth})
+      return calendar.events.list(calendarEventsListParams).then(res => {
+        console.log(res)
+        this.event = res.data.items[0]
+      }).catch(err => {
+        console.log(err)
+        alert('エラー！: ' + err)
+      })
+    } else {
+      auth.getToken(this.$route.query.code).then(res => {
+        saveTokens(res.tokens)
+        auth.credentials = res.tokens
+        const calendar = google.calendar({version: 'v3', auth})
+        return calendar.events.list(calendarEventsListParams)
+      }).then(res => {
+        console.log(res)
+        this.event = res.data.items[0]
+      }).catch(err => {
+        console.log(err)
+        alert('エラー！: ' + err)
+      })
+    }
+
     this.$electron.ipcRenderer.on('start', e => {
       this.$Progress.start()
     })
     this.$electron.ipcRenderer.on('end', e => {
       this.$Progress.set(100)
-    })
-
-    const auth = new OAuth2(clientSecret.client_id,
-      clientSecret.client_secret,
-      this.$route.meta.redirectUri)
-    auth.getToken(this.$route.query.code).then(res => {
-      auth.credentials = res.tokens
-
-      const calendar = google.calendar({version: 'v3', auth})
-      return calendar.events.list({
-        'calendarId': 'primary',
-        'timeMin': (new Date()).toISOString(),
-        'showDeleted': false,
-        'singleEvents': true,
-        'maxResults': 10,
-        'orderBy': 'startTime'
-      })
-    }).then(res => {
-      console.log(res)
-      this.event = res.data.items[0]
-    }).catch(err => {
-      console.log(err)
-      alert('エラー！: ' + err)
-    })
-
-    storage.get('config', function (error, data) {
-      if (error) throw error
-
-      if (Object.keys(data).length === 0) {
-        console.log('データがないときの処理')
-        let json = {
-          user: 'hoge'
-        }
-        storage.set('config', json, function (error) {
-          if (error) throw error
-        })
-      } else {
-        console.log('データがあるときの処理')
-        console.log(data)
-      }
     })
   }
 }

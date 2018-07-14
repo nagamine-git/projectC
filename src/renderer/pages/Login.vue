@@ -24,6 +24,16 @@ export default {
     return { url: 'about:blank' }
   },
   mounted () {
+    const storage = require('electron-json-storage')
+    const router = this.$router
+
+    storage.get('config', function (error, data) {
+      if (error) throw error
+      if (data) {
+        router.push({name: 'calendar', query: {tokens: data}})
+      }
+    })
+
     if (process.env.NODE_ENV === 'development') {
       window.webview = this.$refs.webview
     }

@@ -29,8 +29,8 @@ export default {
 
     storage.get('config', function (error, data) {
       if (error) throw error
-      if (data) {
-        router.push({name: 'calendar', query: {tokens: data}})
+      if (Object.keys(data).indexOf('tokens') >= 0) {
+        router.push({name: 'calendar', query: {tokens: data.tokens}})
       }
     })
 

@@ -18,6 +18,7 @@ const OAuth2 = google.auth.OAuth2
 
 const clientSecret = require('@/../client_secret.json').installed
 const storage = require('electron-json-storage')
+const { ipcRenderer } = require('electron')
 
 export default {
   data () {
@@ -37,6 +38,7 @@ export default {
     }
   },
   mounted () {
+    ipcRenderer.sendSync('changeView', 'on')
     const calendarEventsListParams = {
       'calendarId': 'primary',
       'timeMin': (new Date()).toISOString(),

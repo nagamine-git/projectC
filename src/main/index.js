@@ -6,6 +6,7 @@ const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 const Tray = electron.Tray
 const Menu = electron.Menu
+const ipcMain = electron.ipcMain
 
 /**
  * Set `__static` path to static files in production
@@ -45,34 +46,38 @@ app.on('ready', () => {
   tray.setContextMenu(contextMenu)
 })
 
-// let clickable = false
-
 function createWindow () {
   /**
    * Initial window options
    */
 
   // ウィンドウの最大サイズを計測
-  // const Screen = electron.screen
-  // const size = Screen.getPrimaryDisplay().size
+  const Screen = electron.screen
+  const size = Screen.getPrimaryDisplay().size
 
   mainWindow = new BrowserWindow({
     center: true,
-    // frame: false,
-    // height: size.height,
-    // resizable: false,
-    // transparent: true,
-    // useContentSize: true,
-    // width: size.width,
+    frame: false,
+    height: size.height,
+    resizable: false,
+    transparent: true,
+    useContentSize: true,
+    width: size.width,
     x: 0,
     y: 0
   })
-  // 一番手前に常に表示
-  // mainWindow.setAlwaysOnTop(true)
-  // 移動できないように
-  // mainWindow.setMovable(false)
-  // 透明な箇所がクリック可能に
-  // mainWindow.setIgnoreMouseEvents(!clickable)
+
+  ipcMain.on('changeView', (event, arg) => {
+    let isNotch = false
+    isNotch = arg === 'on'
+    // 一番手前に常に表示
+    mainWindow.setAlwaysOnTop(isNotch)
+    // 移動できないように
+    mainWindow.setMovable(!isNotch)
+    // 透明な箇所がクリック可能に
+    mainWindow.setIgnoreMouseEvents(isNotch)
+    event.returnValue = isNotch
+  })
 
   mainWindow.loadURL(winURL)
 

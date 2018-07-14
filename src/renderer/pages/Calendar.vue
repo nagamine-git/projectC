@@ -6,7 +6,7 @@
           <span>ロード中・・・</span>
         </div>
         <div class="info" v-else>
-          <span>{{event.summary}}</span>[<span>{{event.end.dateTime}}</span>-><span>{{event.start.dateTime}}</span>]
+          <span>{{event.summary}} [{{nowPercent}}%]</span>
         </div>
       </div>
   </div>
@@ -30,10 +30,17 @@ export default {
         start: {
           dateTime: null
         }
-      }
+      },
+      nowTime: null,
+      nowPercent: null
     }
   },
   mounted () {
+    let self = this
+    function getNowTime () {
+      self.nowTime = new Date().getTime()
+    }
+    setInterval(getNowTime, 1000)
     const auth = new OAuth2(clientSecret.client_id,
       clientSecret.client_secret,
       this.$route.meta.redirectUri)
@@ -93,6 +100,14 @@ export default {
     this.$electron.ipcRenderer.on('end', e => {
       this.$Progress.set(100)
     })
+  },
+  watch: {
+    nowTime: function () {
+      let endTime = new Date(this.event.end.dateTime).getTime()
+      let startTime = new Date(this.event.start.dateTime).getTime()
+      this.nowPercent = Math.round(((this.nowTime - startTime) / (endTime - startTime)) * 100)
+      this.$Progress.set(this.nowPercent)
+    }
   }
 }
 </script>

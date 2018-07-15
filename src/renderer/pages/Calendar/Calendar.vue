@@ -44,7 +44,7 @@ export default {
       'timeMin': (new Date()).toISOString(),
       'showDeleted': false,
       'singleEvents': true,
-      'maxResults': 10,
+      'maxResults': 2,
       'orderBy': 'startTime'
     }
 
@@ -71,32 +71,38 @@ export default {
     function getNowTime () {
       self.nowTime = new Date().getTime()
     }
+    // 1秒ごとタイマー更新
+    getNowTime()
     setInterval(getNowTime, 1000)
 
-    if (this.$route.query.tokens) {
-      auth.credentials = this.$route.query.tokens
-      const calendar = google.calendar({version: 'v3', auth})
-      return calendar.events.list(calendarEventsListParams).then(res => {
-        console.log(res)
-        this.event = res.data.items[0]
-      }).catch(err => {
-        console.log(err)
-        alert('エラー！: ' + err)
-      })
-    } else {
-      auth.getToken(this.$route.query.code).then(res => {
-        saveTokens(res.tokens)
-        auth.credentials = res.tokens
+    const $this = this
+
+    function refreshCalendar () {
+      if ($this.$route.query.tokens) {
+        auth.credentials = $this.$route.query.tokens
         const calendar = google.calendar({version: 'v3', auth})
-        return calendar.events.list(calendarEventsListParams)
-      }).then(res => {
-        console.log(res)
-        this.event = res.data.items[0]
-      }).catch(err => {
-        console.log(err)
-        alert('エラー！: ' + err)
-      })
+        return calendar.events.list(calendarEventsListParams).then(res => {
+          $this.event = res.data.items[0]
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        auth.getToken($this.$route.query.code).then(res => {
+          saveTokens(res.tokens)
+          auth.credentials = res.tokens
+          const calendar = google.calendar({version: 'v3', auth})
+          return calendar.events.list(calendarEventsListParams)
+        }).then(res => {
+          $this.event = res.data.items[0]
+        }).catch(err => {
+          console.log(err)
+        })
+      }
     }
+
+    // カレンダーの同期は1分ごと
+    refreshCalendar()
+    setInterval(refreshCalendar, 60000)
 
     this.$electron.ipcRenderer.on('start', e => {
       this.$Progress.start()

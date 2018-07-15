@@ -4,8 +4,8 @@ import electron from 'electron'
 
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
-const Tray = electron.Tray
-const Menu = electron.Menu
+// const Tray = electron.Tray
+// const Menu = electron.Menu
 const ipcMain = electron.ipcMain
 
 /**
@@ -22,29 +22,29 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`
 
 // Trayアイコン表示
-let tray = null
-app.on('ready', () => {
-  tray = new Tray(require('path').join(__dirname, '../renderer/assets/tray.png'))
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Start',
-      click () {
-        mainWindow.webContents.send('start')
-      }
-    },
-    { label: 'End',
-      click () {
-        mainWindow.webContents.send('end')
-      }
-    },
-    { label: 'Quit',
-      click () {
-        app.quit()
-      }
-    }
-  ])
-  tray.setToolTip('これは自分のアプリケーションです。')
-  tray.setContextMenu(contextMenu)
-})
+// let tray = null
+// app.on('ready', () => {
+//   tray = new Tray(require('path').join(__dirname, '../renderer/assets/tray.png'))
+//   const contextMenu = Menu.buildFromTemplate([
+//     { label: 'Start',
+//       click () {
+//         mainWindow.webContents.send('start')
+//       }
+//     },
+//     { label: 'End',
+//       click () {
+//         mainWindow.webContents.send('end')
+//       }
+//     },
+//     { label: 'Quit',
+//       click () {
+//         app.quit()
+//       }
+//     }
+//   ])
+//   tray.setToolTip('これは自分のアプリケーションです。')
+//   tray.setContextMenu(contextMenu)
+// })
 
 function createWindow () {
   /**

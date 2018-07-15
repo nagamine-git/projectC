@@ -2,11 +2,11 @@
   <div>
     <vue-progress-bar></vue-progress-bar>
       <div class="container">
-        <div class="info" v-if="event.summary === null">
+        <div class="info" v-if="currentEvent === null">
           <span>ロード中・・・</span>
         </div>
         <div class="info" v-else>
-          <span>{{event.summary}} [{{remainingTime}}]</span>
+          <span>{{currentEvent.summary}} [{{remainingTime}}]</span>
         </div>
       </div>
   </div>
@@ -23,7 +23,7 @@ const { ipcRenderer } = require('electron')
 export default {
   data () {
     return {
-      event: {
+      currentEvent: {
         summary: null,
         end: {
           dateTime: null
@@ -32,6 +32,7 @@ export default {
           dateTime: null
         }
       },
+      futureEvents: [],
       nowTime: null,
       nowPercent: null,
       remainingTime: null
@@ -82,7 +83,7 @@ export default {
         auth.credentials = $this.$route.query.tokens
         const calendar = google.calendar({version: 'v3', auth})
         return calendar.events.list(calendarEventsListParams).then(res => {
-          $this.event = res.data.items[0]
+          $this.futureEvents = res.data.items
         }).catch(err => {
           console.log(err)
         })
@@ -93,16 +94,30 @@ export default {
           const calendar = google.calendar({version: 'v3', auth})
           return calendar.events.list(calendarEventsListParams)
         }).then(res => {
-          $this.event = res.data.items[0]
+          $this.futureEvents = res.data.items
         }).catch(err => {
           console.log(err)
         })
       }
     }
 
-    // カレンダーの同期は1分ごと
+    // カレンダーの同期は30秒ごと
     refreshCalendar()
-    setInterval(refreshCalendar, 60000)
+    setInterval(refreshCalendar, 30000)
+
+    function checkEvent () {
+      if ($this.futureEvents.length >= 2) {
+        if (new Date().getTime() >= new Date($this.futureEvents[0].end.dateTime).getTime()) {
+          $this.currentEvent = $this.futureEvents[1]
+        } else {
+          $this.currentEvent = $this.futureEvents[0]
+        }
+      }
+    }
+
+    // 1秒ごとにeventが最新のイベントかどうか確認
+    checkEvent()
+    setInterval(checkEvent, 1000)
 
     this.$electron.ipcRenderer.on('start', e => {
       this.$Progress.start()
@@ -113,14 +128,20 @@ export default {
   },
   watch: {
     nowTime: function () {
-      let endTime = new Date(this.event.end.dateTime).getTime()
-      let startTime = new Date(this.event.start.dateTime).getTime()
-      let remainingTimeHour = String(Math.floor(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) / 60))
-      let remainingTimeMin = String(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) % 60)
-      let remainingTimeSec = String(Math.floor((endTime - this.nowTime) / 1000) % 60)
-      this.remainingTime = remainingTimeHour + ':' + remainingTimeMin + ':' + remainingTimeSec
-      this.nowPercent = Math.round(((this.nowTime - startTime) / (endTime - startTime)) * 100)
-      this.$Progress.set(this.nowPercent)
+      if (this.currentEvent) {
+        let endTime = new Date(this.currentEvent.end.dateTime).getTime()
+        let startTime = new Date(this.currentEvent.start.dateTime).getTime()
+        let remainingTimeHour = String(Math.floor(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) / 60))
+        let remainingTimeMin = String(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) % 60)
+        let remainingTimeSec = String(Math.floor((endTime - this.nowTime) / 1000) % 60)
+        this.remainingTime = remainingTimeHour + ':' + remainingTimeMin + ':' + remainingTimeSec
+        this.nowPercent = Math.round(((this.nowTime - startTime) / (endTime - startTime)) * 100)
+        if (this.nowPercent >= 0 && this.nowPercent <= 100) {
+          this.$Progress.set(this.nowPercent)
+        } else {
+          this.$Progress.set(0)
+        }
+      }
     }
   }
 }

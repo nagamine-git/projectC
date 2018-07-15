@@ -4,9 +4,11 @@ import electron from 'electron'
 
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
-// const Tray = electron.Tray
-// const Menu = electron.Menu
+const Tray = electron.Tray
+const Menu = electron.Menu
+const nativeImage = electron.nativeImage
 const ipcMain = electron.ipcMain
+const path = require('path')
 
 /**
  * Set `__static` path to static files in production
@@ -22,29 +24,38 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`
 
 // Trayアイコン表示
-// let tray = null
-// app.on('ready', () => {
-//   tray = new Tray(require('path').join(__dirname, '../renderer/assets/tray.png'))
-//   const contextMenu = Menu.buildFromTemplate([
-//     { label: 'Start',
-//       click () {
-//         mainWindow.webContents.send('start')
-//       }
-//     },
-//     { label: 'End',
-//       click () {
-//         mainWindow.webContents.send('end')
-//       }
-//     },
-//     { label: 'Quit',
-//       click () {
-//         app.quit()
-//       }
-//     }
-//   ])
-//   tray.setToolTip('これは自分のアプリケーションです。')
-//   tray.setContextMenu(contextMenu)
-// })
+let tray = null
+const iconPath = path.join(path.resolve(__dirname), 'tray.png')
+let trayIcon = nativeImage.createFromPath(iconPath)
+let calWindow = null
+trayIcon = trayIcon.resize({ width: 32, height: 32 })
+app.on('ready', () => {
+  tray = new Tray(trayIcon)
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Open Calendar',
+      click () {
+        const Screen = electron.screen
+        const size = Screen.getPrimaryDisplay().size
+        calWindow = new BrowserWindow({
+          center: true,
+          height: size.height,
+          width: size.width
+        })
+        calWindow.loadURL('https://calendar.google.com/calendar/r')
+        calWindow.on('closed', () => {
+          calWindow = null
+        })
+      }
+    },
+    { label: 'Quit',
+      click () {
+        app.quit()
+      }
+    }
+  ])
+  tray.setToolTip('project_c')
+  tray.setContextMenu(contextMenu)
+})
 
 function createWindow () {
   /**

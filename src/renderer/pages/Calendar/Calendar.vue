@@ -71,60 +71,53 @@ export default {
     let self = this
     function getNowTime () {
       self.nowTime = new Date().getTime()
+      if (self.nowPercent === 100) {
+        refreshCalendar()
+      }
     }
-    // 1秒ごとタイマー更新
-    getNowTime()
-    setInterval(getNowTime, 1000)
 
-    const $this = this
+    function checkEvent () {
+      if (self.futureEvents.length >= 2) {
+        if (new Date().getTime() >= new Date(self.futureEvents[0].end.dateTime).getTime()) {
+          self.currentEvent = self.futureEvents[1]
+        } else {
+          self.currentEvent = self.futureEvents[0]
+        }
+      }
+    }
 
     function refreshCalendar () {
-      if ($this.$route.query.tokens) {
-        auth.credentials = $this.$route.query.tokens
+      if (self.$route.query.tokens) {
+        auth.credentials = self.$route.query.tokens
         const calendar = google.calendar({version: 'v3', auth})
         return calendar.events.list(calendarEventsListParams).then(res => {
-          $this.futureEvents = res.data.items
+          self.futureEvents = res.data.items
+          checkEvent()
         }).catch(err => {
           console.log(err)
         })
       } else {
-        auth.getToken($this.$route.query.code).then(res => {
+        auth.getToken(self.$route.query.code).then(res => {
           saveTokens(res.tokens)
           auth.credentials = res.tokens
           const calendar = google.calendar({version: 'v3', auth})
           return calendar.events.list(calendarEventsListParams)
         }).then(res => {
-          $this.futureEvents = res.data.items
+          self.futureEvents = res.data.items
+          checkEvent()
         }).catch(err => {
           console.log(err)
         })
       }
     }
 
-    // カレンダーの同期は30秒ごと
+    // 1秒ごとタイマー更新
+    getNowTime()
+    setInterval(getNowTime, 1000)
+
+    // 10分ごとカレンダーの同期
     refreshCalendar()
-    setInterval(refreshCalendar, 30000)
-
-    function checkEvent () {
-      if ($this.futureEvents.length >= 2) {
-        if (new Date().getTime() >= new Date($this.futureEvents[0].end.dateTime).getTime()) {
-          $this.currentEvent = $this.futureEvents[1]
-        } else {
-          $this.currentEvent = $this.futureEvents[0]
-        }
-      }
-    }
-
-    // 1秒ごとにeventが最新のイベントかどうか確認
-    checkEvent()
-    setInterval(checkEvent, 1000)
-
-    this.$electron.ipcRenderer.on('start', e => {
-      this.$Progress.start()
-    })
-    this.$electron.ipcRenderer.on('end', e => {
-      this.$Progress.set(100)
-    })
+    setInterval(refreshCalendar, 600000)
   },
   watch: {
     nowTime: function () {

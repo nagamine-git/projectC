@@ -6,7 +6,7 @@
           <span>ロード中・・・</span>
         </div>
         <div class="info" v-else :class="flashBackground">
-          <span>{{currentEvent.summary}} [{{remainingTime}}]</span>
+          <span>{{currentEvent.summary}} [{{remainingTimeView}}]</span>
         </div>
       </div>
   </div>
@@ -36,6 +36,8 @@ export default {
       nowTime: null,
       nowPercent: null,
       remainingTime: null,
+      remainingTimeView: null,
+      elapsedTime: null,
       startFlash: false,
       endFlash: false
     }
@@ -130,16 +132,18 @@ export default {
       if (this.currentEvent) {
         let endTime = new Date(this.currentEvent.end.dateTime).getTime()
         let startTime = new Date(this.currentEvent.start.dateTime).getTime()
-        let remainingTimeHour = String(Math.floor(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) / 60))
-        let remainingTimeMin = String(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) % 60)
-        let remainingTimeSec = String(Math.floor((endTime - this.nowTime) / 1000) % 60)
-        this.remainingTime = remainingTimeHour + ':' + remainingTimeMin + ':' + remainingTimeSec
-        this.nowPercent = Math.round(((this.nowTime - startTime) / (endTime - startTime)) * 100)
+        this.remainingTime = Math.floor((endTime - this.nowTime) / 1000)
+        this.elapsedTime = this.nowTime - startTime
+        let remainingTimeHour = String(Math.floor(Math.floor(this.remainingTime / 60) / 60))
+        let remainingTimeMin = String(Math.floor(this.remainingTime / 60) % 60)
+        let remainingTimeSec = String(this.remainingTime % 60)
+        this.remainingTimeView = remainingTimeHour + ':' + remainingTimeMin + ':' + remainingTimeSec
+        this.nowPercent = Math.round(((this.elapsedTime) / (endTime - startTime)) * 100)
         if (this.nowPercent >= 0 && this.nowPercent <= 100) {
           this.$Progress.set(this.nowPercent)
-          if (this.nowPercent === 100) {
+          if (this.remainingTime <= 60 && this.remainingTime > 0) {
             this.endFlash = true
-          } else if (this.nowPercent === 0) {
+          } else if (this.nowPercent >= 0 && this.elapsedTime < 60000) {
             this.startFlash = true
           } else {
             this.endFlash = false

@@ -1,20 +1,27 @@
 .container {
-border-style: none;
-text-align: center;
+  border-style: none;
+  text-align: center;
 }
 
 .info {
-border-style: none;
-background-color: #222222;
-border-radius: 0px 0px 6px 6px;
-box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-display: inline-block;
-opacity: 0.89;
-padding: 1px 12px 3px;
-border-style: none;
-color: #fff;
+  border-style: none;
+  background-color: #222222;
+  border-radius: 0px 0px 6px 6px;
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+  display: inline-block;
+  opacity: 0.89;
+  padding: 1px 12px 3px;
+  border-style: none;
+  color: #fff;
 }
 
 .info span {
-font-size: 11.5px;
+  font-size: 11.5px;
+}
+
+.set_background_color_start {
+  background-color: #0080ee;
+}
+.set_background_color_end {
+  background-color: #ee6e00;
 }

@@ -117,9 +117,9 @@ export default {
     getNowTime()
     setInterval(getNowTime, 1000)
 
-    // 10分ごとカレンダーの同期
+    // 3分ごとカレンダーの同期
     refreshCalendar()
-    setInterval(refreshCalendar, 600000)
+    setInterval(refreshCalendar, 180000)
   },
   watch: {
     nowTime: function () {

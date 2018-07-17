@@ -32,6 +32,11 @@ trayIcon = trayIcon.resize({ width: 32, height: 32 })
 app.on('ready', () => {
   tray = new Tray(trayIcon)
   const contextMenu = Menu.buildFromTemplate([
+    { label: 'Refresh Calendar',
+      click () {
+        mainWindow.webContents.send('refreshCalendar')
+      }
+    },
     { label: 'Open Calendar',
       click () {
         const Screen = electron.screen

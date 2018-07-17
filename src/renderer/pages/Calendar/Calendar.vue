@@ -120,6 +120,10 @@ export default {
     // 3分ごとカレンダーの同期
     refreshCalendar()
     setInterval(refreshCalendar, 180000)
+
+    this.$electron.ipcRenderer.on('refreshCalendar', e => {
+      refreshCalendar()
+    })
   },
   watch: {
     nowTime: function () {

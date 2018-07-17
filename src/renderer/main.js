@@ -9,8 +9,8 @@ import store from './store'
 Vue.use(VueProgressBar, {
   color: 'rgb(0, 128, 238)',
   failedColor: 'red',
-  thickness: '3px',
-  height: '3px'
+  thickness: '4px',
+  height: '4px'
 })
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))

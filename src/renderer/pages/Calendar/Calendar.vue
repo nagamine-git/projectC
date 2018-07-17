@@ -5,7 +5,7 @@
         <div class="info" v-if="currentEvent === null">
           <span>ロード中・・・</span>
         </div>
-        <div class="info" v-else>
+        <div class="info" v-else :class="flashBackground">
           <span>{{currentEvent.summary}} [{{remainingTime}}]</span>
         </div>
       </div>
@@ -35,7 +35,9 @@ export default {
       futureEvents: [],
       nowTime: null,
       nowPercent: null,
-      remainingTime: null
+      remainingTime: null,
+      startFlash: false,
+      endFlash: false
     }
   },
   mounted () {
@@ -131,9 +133,27 @@ export default {
         this.nowPercent = Math.round(((this.nowTime - startTime) / (endTime - startTime)) * 100)
         if (this.nowPercent >= 0 && this.nowPercent <= 100) {
           this.$Progress.set(this.nowPercent)
+          if (this.nowPercent === 100) {
+            this.endFlash = true
+          } else if (this.nowPercent === 0) {
+            this.startFlash = true
+          } else {
+            this.endFlash = false
+            this.startFlash = false
+          }
         } else {
           this.$Progress.set(0)
+          this.startFlash = false
+          this.endFlash = false
         }
+      }
+    }
+  },
+  computed: {
+    flashBackground: function () {
+      return {
+        'set_background_color_end': this.endFlash,
+        'set_background_color_start': this.startFlash
       }
     }
   }

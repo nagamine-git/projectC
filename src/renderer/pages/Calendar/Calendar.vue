@@ -6,7 +6,7 @@
           <span>ロード中・・・</span>
         </div>
         <div class="info" v-else :class="flashBackground">
-          <span>{{currentEvent.summary}} [{{remainingTime}}]</span>
+          <span>{{currentEvent.summary}} [{{remainingTimeView}}]</span>
         </div>
       </div>
   </div>
@@ -36,6 +36,8 @@ export default {
       nowTime: null,
       nowPercent: null,
       remainingTime: null,
+      remainingTimeView: null,
+      elapsedTime: null,
       startFlash: false,
       endFlash: false
     }
@@ -73,9 +75,6 @@ export default {
     let self = this
     function getNowTime () {
       self.nowTime = new Date().getTime()
-      if (self.nowPercent === 100) {
-        refreshCalendar()
-      }
     }
 
     function checkEvent () {
@@ -117,28 +116,34 @@ export default {
     getNowTime()
     setInterval(getNowTime, 1000)
 
-    // 10分ごとカレンダーの同期
+    // 3分ごとカレンダーの同期
     refreshCalendar()
-    setInterval(refreshCalendar, 600000)
+    setInterval(refreshCalendar, 180000)
+
+    this.$electron.ipcRenderer.on('refreshCalendar', e => {
+      refreshCalendar()
+    })
   },
   watch: {
     nowTime: function () {
       if (this.currentEvent) {
         let endTime = new Date(this.currentEvent.end.dateTime).getTime()
         let startTime = new Date(this.currentEvent.start.dateTime).getTime()
-        let remainingTimeHour = String(Math.floor(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) / 60))
-        let remainingTimeMin = String(Math.floor(Math.floor((endTime - this.nowTime) / 1000) / 60) % 60)
-        let remainingTimeSec = String(Math.floor((endTime - this.nowTime) / 1000) % 60)
-        this.remainingTime = remainingTimeHour + ':' + remainingTimeMin + ':' + remainingTimeSec
-        this.nowPercent = Math.round(((this.nowTime - startTime) / (endTime - startTime)) * 100)
+        this.remainingTime = Math.floor((endTime - this.nowTime) / 1000)
+        this.elapsedTime = this.nowTime - startTime
+        let remainingTimeHour = String(Math.floor(Math.floor(this.remainingTime / 60) / 60))
+        let remainingTimeMin = String(Math.floor(this.remainingTime / 60) % 60)
+        let remainingTimeSec = String(this.remainingTime % 60)
+        this.remainingTimeView = remainingTimeHour + ':' + remainingTimeMin + ':' + remainingTimeSec
+        this.nowPercent = Math.round(((this.elapsedTime) / (endTime - startTime)) * 100)
         if (this.nowPercent >= 0 && this.nowPercent <= 100) {
           this.$Progress.set(this.nowPercent)
-          if (this.nowPercent === 100) {
+          if (this.remainingTime <= 60 && this.remainingTime > 0) {
             this.endFlash = true
             this.startFlash = false
-          } else if (this.nowPercent === 0) {
-            this.startFlash = true
+          } else if (this.nowPercent >= 0 && this.elapsedTime < 60000) {
             this.endFlash = false
+            this.startFlash = true
           } else {
             this.endFlash = false
             this.startFlash = false
